@@ -15,12 +15,11 @@ import android.widget.Toast;
 
 import com.bms.twitterapidemo.R;
 import com.bms.twitterapidemo.TwitterDemoApplication;
-import com.bms.twitterapidemo.Util;
 import com.bms.twitterapidemo.mvp.model.SearchResult;
 import com.bms.twitterapidemo.mvp.presentors.MainActivityPresenter;
 import com.bms.twitterapidemo.mvp.pv_interfaces.MainActivityPresentorCallback;
 import com.bms.twitterapidemo.mvp.views.adapter.TwitListAdapter;
-import com.bms.twitterapidemo.network.NetworkManager;
+import com.bms.twitterapidemo.utils.Util;
 
 import javax.inject.Inject;
 
@@ -38,8 +37,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
     TextView tvErrorMsg;
     @Inject
     MainActivityPresenter mPresenter;
-    @Inject
-    NetworkManager networkManager;
+
     private SearchResult mSearchResult;
     private TwitListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -54,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         ButterKnife.bind(this);
         ((TwitterDemoApplication) getApplication()).getInjectorComponent().inject(this);
         mPresenter.startPresentor(this);
+
         init();
 
 
@@ -65,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         rvTwitList.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         rvTwitList.setLayoutManager(mLayoutManager);
-        Util.showProgressBar(this,"Wait a Sec","Shaking hand with twitter");
-        mPresenter.getBearerToken(networkManager);
+        Util.showProgressBar(this, "Wait a Sec", "Shaking hand with twitter");
+        mPresenter.getBearerToken();
 
     }
 
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         Util.dismissProgressBar();
         tvErrorMsg.setVisibility(View.GONE);
         rvTwitList.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "You are to go", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "You are good to go", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -99,17 +98,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
 
     @Override
     public void onResultReceived() {
-
         mAdapter = new TwitListAdapter(mSearchResult.getStatuseList(), this);
         rvTwitList.setAdapter(mAdapter);
-//        if (mAdapter == null) {
-//            mAdapter = new TwitListAdapter(mSearchResult.getStatuseList(), this);
-//            rvTwitList.setAdapter(mAdapter);
-//        } else {
-//            mAdapter.notifyDataSetChanged();
-//            mAdapter.notifyAll();
-//        }
-
     }
 
     @Override
@@ -131,19 +121,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
     @Override
     public void onWaitComplete() {
         hideKeybord();
-        mPresenter.getData(networkManager, etSearchBoxTitle.getText().toString());
+        mPresenter.getData(etSearchBoxTitle.getText().toString());
     }
 
     private void hideKeybord() {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         IBinder token = etSearchBoxTitle.getWindowToken();
-        if(token!=null)
-        imm.hideSoftInputFromWindow(token, 0);
+        if (token != null)
+            imm.hideSoftInputFromWindow(token, 0);
     }
 
     @Override
     public void showProgressDialog() {
-        Util.showProgressBar(this,"Please wait","Loading twits");
+        Util.showProgressBar(this, "Please wait", "Loading twits");
     }
 
     @Override
@@ -151,7 +141,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityPrese
         Util.dismissProgressBar();
     }
 
-//
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mPresenter.stopPresentor();
+    }
 }

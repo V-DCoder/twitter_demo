@@ -1,7 +1,10 @@
 package com.bms.twitterapidemo.dependency_injection;
 
+import com.bms.twitterapidemo.controller.MainActivityController;
 import com.bms.twitterapidemo.network.NetworkManager;
+import com.squareup.otto.Bus;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -21,4 +24,10 @@ public class NetworkDependencyModule {
         return new NetworkManager();
     }
 
+    @Singleton
+    @Provides
+    public MainActivityController getController( NetworkManager manager)
+    {
+        return new MainActivityController( manager);
+    };
 }

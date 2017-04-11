@@ -1,4 +1,4 @@
-package com.bms.twitterapidemo;
+package com.bms.twitterapidemo.utils;
 
 import android.app.ProgressDialog;
 import android.content.Context;

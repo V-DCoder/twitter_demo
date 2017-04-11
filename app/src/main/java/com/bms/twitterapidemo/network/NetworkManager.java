@@ -1,5 +1,7 @@
 package com.bms.twitterapidemo.network;
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -13,22 +15,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetworkManager {
 
 
-
-    public Retrofit getRetrofitClient()
-    {
+    public Retrofit getRetrofitClient() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder builder = new OkHttpClient.Builder().addInterceptor(interceptor);
 
-        return new Retrofit.Builder().baseUrl(NetworkConstants.BaseURL).addConverterFactory(GsonConverterFactory.create()).client(builder.build()).build();
+        return new Retrofit.Builder().baseUrl(NetworkConstants.BaseURL).addConverterFactory(GsonConverterFactory.create()).addCallAdapterFactory(RxJava2CallAdapterFactory.create()).client(builder.build()).build();
 
     }
 
-    public ApiInterface getRetrofitAPIClient()
-    {
+    public ApiInterface getRetrofitAPIClient() {
         return getRetrofitClient().create(ApiInterface.class);
     }
-
 
 
 }
